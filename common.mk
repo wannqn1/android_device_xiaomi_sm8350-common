@@ -30,7 +30,7 @@ PRODUCT_SHIPPING_API_LEVEL := 30
 PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
 
 # Audio
-TARGET_INCLUDES_DOLBY := true
+TARGET_INCLUDES_DOLBY ?= true
 
 PRODUCT_PACKAGES += \
     libqcompostprocbundle \
@@ -337,8 +337,9 @@ PRODUCT_PACKAGES += \
     DeviceAsWebcamOverlayCommon
 
 # Parts
-PRODUCT_PACKAGES += \
-    DVParts
+ifeq ($(TARGET_INCLUDES_DOLBY),true)
+PRODUCT_PACKAGES += DVParts
+endif
 
 # Partitions
 PRODUCT_PACKAGES += \

@@ -55,9 +55,11 @@ TARGET_NO_BOOTLOADER := true
 TARGET_SCREEN_DENSITY ?= 440
 
 # Dolby Vision
+ifneq ($(TARGET_RENOIR_KERNEL_618),true)
 SOONG_CONFIG_NAMESPACES += dolby_vision
 SOONG_CONFIG_dolby_vision += enabled
 SOONG_CONFIG_dolby_vision_enabled := true
+endif
 
 # Camera
 TARGET_CAMERA_SERVICE_EXT_LIB := //$(COMMON_PATH):libcameraservice_extension.xiaomi_sm8350
