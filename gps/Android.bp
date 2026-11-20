@@ -1,3 +1,7 @@
+// Keep the source GNSS modules in a separate namespace from the BSP prebuilts.
+soong_namespace {
+}
+
 GNSS_CFLAGS = [
     "-Werror",
     "-Wno-undefined-bool-conversion",
