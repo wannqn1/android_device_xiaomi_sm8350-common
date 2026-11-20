@@ -137,10 +137,34 @@ function configure_memory_parameters() {
 		echo 0 > /proc/sys/vm/watermark_boost_factor
 	fi
 
-	#Spawn 2 kswapd threads which can help in fast reclaiming of pages
-	echo 2 > /proc/sys/vm/kswapd_threads
+	# Some older kernels expose a sysctl for extra reclaim threads.
+	if [ -w /proc/sys/vm/kswapd_threads ]; then
+		echo 2 > /proc/sys/vm/kswapd_threads
+	fi
 }
 
+# Tempest uses upstream schedutil and PELT. Its frequency policies do not
+# expose the 5.4 WALT, core_ctl or bandwidth governor interfaces.
+case "$(uname -r)" in
+	6.18.*-Tempest)
+		echo 0-3 > /dev/cpuset/background/cpus
+		echo 0-3 > /dev/cpuset/system-background/cpus
+
+		for policy in /sys/devices/system/cpu/cpufreq/policy*; do
+			if [ -w "$policy/scaling_governor" ]; then
+				echo schedutil > "$policy/scaling_governor"
+			fi
+			case "${policy##*/}" in
+				policy0|policy4) min_freq=691200 ;;
+				policy7) min_freq=806400 ;;
+				*) continue ;;
+			esac
+			if [ -w "$policy/scaling_min_freq" ]; then
+				echo "$min_freq" > "$policy/scaling_min_freq"
+			fi
+		done
+		;;
+	*)
 rev=`cat /sys/devices/soc0/revision`
 ddr_type=`od -An -tx /proc/device-tree/memory/ddr_device_type`
 ddr_type4="07"
@@ -356,6 +380,8 @@ do
 	    echo 50 > $qoslat/mem_latency/ratio_ceil
 	done
 done
+		;;
+esac
 
 # set s2idle as default suspend mode
 echo s2idle > /sys/power/mem_sleep
