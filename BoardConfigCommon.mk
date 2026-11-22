@@ -88,6 +88,9 @@ DEVICE_MANIFEST_FILE += \
 endif
 
 DEVICE_MANIFEST_FILE += $(COMMON_PATH)/hidl/c2_manifest_vendor.xml
+ifneq ($(TARGET_RENOIR_KERNEL_618),true)
+DEVICE_MANIFEST_FILE += $(COMMON_PATH)/hidl/c2_manifest_dolby.xml
+endif
 
 # Kernel
 BOARD_KERNEL_BASE := 0x00000000
